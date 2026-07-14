@@ -112,6 +112,19 @@ label{
 <input id="peck" value="2">
     <label>Tap Pitch</label>
 <input id="tapPitch" value="0.8">
+   <label>Tap Size</label>
+<select id="tapSize">
+<option value="M3">M3 x 0.5</option>
+<option value="M4">M4 x 0.7</option>
+<option value="M5">M5 x 0.8</option>
+<option value="M6">M6 x 1.0</option>
+<option value="M8">M8 x 1.25</option>
+<option value="M10">M10 x 1.5</option>
+</select>
+
+<button onclick="tapCalc()">Calculate Tap</button>
+
+<textarea id="tapResult"></textarea> 
 
 <label>Tap Depth Z</label>
 <input id="tapZ" value="-10">
