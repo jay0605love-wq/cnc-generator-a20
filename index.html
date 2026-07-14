@@ -58,6 +58,7 @@ label{
 <option value="od">OD Turning</option>
 <option value="g32">G32 Thread</option>
 <option value="g92">G92 Thread</option>
+<option value="g83">G83 Drill</option>
 </select>
 
 </div>
@@ -102,7 +103,11 @@ label{
 
 <label>Pass</label>
 <input id="pass" value="4">
+<label>Drill Depth Z</label>
+<input id="drillZ" value="-10">
 
+<label>Peck Q</label>
+<input id="peck" value="2">
 
 <button onclick="generate()">Generate G-code</button>
 
@@ -198,7 +203,19 @@ code+="X"+xpos+"\n";
 
 }
 
+if(mode=="g83"){
 
+let z=document.getElementById("drillZ").value;
+let q=document.getElementById("peck").value;
+let feed=document.getElementById("feed").value;
+
+code+=
+"G83 Z"+z+
+" Q"+q+
+" F"+feed+"\n"+
+"G80\n";
+
+}
 code+=
 "G0 X20.\n"+
 "M5\n"+
