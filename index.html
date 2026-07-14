@@ -1,21 +1,19 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>CNC Generator A20 V0.5</title>
+<title>CNC Generator A20 V0.6</title>
 
 <style>
+
 body{
 font-family:Arial;
 background:#111;
 color:white;
 padding:15px;
-}
-
-h1{
-text-align:center;
 }
 
 .box{
@@ -45,25 +43,23 @@ background:#000;
 color:#00ff00;
 }
 
-label{
-display:block;
-margin-top:8px;
-}
 </style>
 
 </head>
 
+
 <body>
 
-<h1>⚙️ CNC Generator A20</h1>
+<h2>⚙️ CNC Generator A20 V0.6</h2>
+
 
 <div class="box">
 
-<label>เลือกงาน</label>
-
 <select id="mode">
 
-<option value="od">OD Turning</option>
+<option value="od">
+OD Turning
+</option>
 
 <option value="g32">
 G32 Manual Thread
@@ -81,29 +77,53 @@ G83 Drill
 G84 Tap
 </option>
 
+<option value="cut">
+Cut Off
+</option>
+
+<option value="groove">
+Groove
+</option>
+
+<option value="chamfer">
+Chamfer
+</option>
+
+<option value="radius">
+Radius G02/G03
+</option>
+
+<option value="offset">
+Tool Offset Calculator
+</option>
+
 </select>
 
 </div>
 
 
+
 <div class="box">
+
+<h3>Common</h3>
+
+<label>RPM</label>
+<input id="rpm" value="3000">
+
+<label>Feed</label>
+<input id="feed" value="0.05">
+
 
 <h3>OD Turning</h3>
 
-<label>X Start (Diameter)</label>
+<label>X Start Diameter</label>
 <input id="xs" value="8">
 
-<label>X Finish (Diameter)</label>
+<label>X Finish Diameter</label>
 <input id="xe" value="6">
 
 <label>Z Length</label>
 <input id="zl" value="-20">
-
-<label>Feed</label>
-<input id="feed" value="0.08">
-
-<label>RPM</label>
-<input id="rpm" value="3500">
 
 
 <h3>Thread</h3>
@@ -117,23 +137,23 @@ G84 Tap
 <label>X Finish</label>
 <input id="txe" value="3.9">
 
-<label>Thread Z</label>
+<label>Z Thread</label>
 <input id="tz" value="-10">
 
-<label>Thread Pass</label>
+<label>Pass</label>
 <input id="pass" value="4">
+<h3>G83 Drill</h3>
 
-
-<h3>Drill G83</h3>
-
-<label>Drill Z Depth</label>
+<label>Drill Depth Z</label>
 <input id="drillZ" value="-10">
 
 <label>Peck Q</label>
 <input id="peck" value="2">
+
+
 <h3>G84 Tap</h3>
 
-<label>Tap Pitch / Feed</label>
+<label>Tap Pitch</label>
 <input id="tapPitch" value="0.8">
 
 <label>Tap Depth Z</label>
@@ -143,30 +163,61 @@ G84 Tap
 <input id="tapR" value="1">
 
 
-<h3>Tap Calculator</h3>
+<h3>Cut Off</h3>
 
-<label>เลือก Tap</label>
+<label>Cut X</label>
+<input id="cutX" value="-1">
 
-<select id="tapSize">
+<label>Cut Z</label>
+<input id="cutZ" value="-2">
 
-<option value="M3">M3 x 0.5</option>
-<option value="M4">M4 x 0.7</option>
-<option value="M5">M5 x 0.8</option>
-<option value="M6">M6 x 1.0</option>
-<option value="M8">M8 x 1.25</option>
-<option value="M10">M10 x 1.5</option>
+
+<h3>Groove</h3>
+
+<label>Groove X</label>
+<input id="grooveX" value="5">
+
+<label>Groove Z</label>
+<input id="grooveZ" value="-2">
+
+
+<h3>Chamfer</h3>
+
+<label>Chamfer C</label>
+<input id="chamferC" value="1">
+
+
+<h3>Radius</h3>
+
+<label>Radius R</label>
+<input id="radiusR" value="2">
+
+<label>Direction</label>
+
+<select id="radiusDir">
+
+<option value="G02">
+G02
+</option>
+
+<option value="G03">
+G03
+</option>
 
 </select>
 
 
-<button onclick="tapCalc()">
-Calculate Tap
-</button>
 
+<h3>Tool Offset Calculator</h3>
 
-<textarea id="tapResult"
-placeholder="ผล Tap Calculator">
-</textarea>
+<label>Tool No.</label>
+<input id="toolNo" value="1">
+
+<label>Geometry</label>
+<input id="geometry" value="0">
+
+<label>Wear</label>
+<input id="wear" value="0">
 
 
 <button onclick="generate()">
@@ -182,27 +233,21 @@ Copy G-code
 </div>
 
 
-<textarea id="out"
-placeholder="G-code Output">
-</textarea>
+<textarea id="out"></textarea>
 
 
 <script>
+
 
 function generate(){
 
 let mode=document.getElementById("mode").value;
 
-let rpm=document.getElementById("rpm").value;
-
 let code=
-"%\n"+
-"O1001\n"+
-"G99\n"+
-"G97 S"+rpm+" M3\n";
-
-
-if(mode=="od"){
+"%\nO1006\nG99\nG97 S"+
+rpm.value+
+" M3\n";
+   if(mode=="od"){
 
 code+=
 "G0 X"+xs.value+" Z1.\n"+
@@ -218,9 +263,7 @@ if(mode=="g32"){
 let start=parseFloat(txs.value);
 let end=parseFloat(txe.value);
 let p=parseInt(pass.value);
-
 let step=(start-end)/p;
-
 
 for(let i=0;i<=p;i++){
 
@@ -239,32 +282,11 @@ code+=
 
 if(mode=="g92"){
 
-let start=parseFloat(txs.value);
-let end=parseFloat(txe.value);
-let p=parseInt(pass.value);
-
-let step=(start-end)/p;
-
-
-for(let i=0;i<=p;i++){
-
-let x=(start-(step*i)).toFixed(2);
-
-if(i==0){
-
 code+=
-"G92 X"+x+
+"G92 X"+txs.value+
 " Z"+tz.value+
 " F"+pitch.value+
-"\n";
-
-}else{
-
-code+="X"+x+"\n";
-
-}
-
-}
+"\nX"+txe.value+"\n";
 
 }
 
@@ -291,6 +313,65 @@ code+=
 }
 
 
+if(mode=="cut"){
+
+code+=
+"G1 X"+cutX.value+
+" Z"+cutZ.value+
+" F"+feed.value+
+"\n";
+
+}
+
+
+if(mode=="groove"){
+
+code+=
+"G1 X"+grooveX.value+
+" F"+feed.value+
+"\nZ"+grooveZ.value+
+"\n";
+
+}
+
+
+if(mode=="chamfer"){
+
+code+=
+"G1 X"+chamferC.value+
+" Z-"+chamferC.value+
+" F"+feed.value+
+"\n";
+
+}
+
+
+if(mode=="radius"){
+
+code+=
+radiusDir.value+
+" X10. Z-5. R"+
+radiusR.value+
+"\n";
+
+}
+
+
+if(mode=="offset"){
+
+code+=
+"( TOOL OFFSET )\n"+
+"TOOL NO : "+
+toolNo.value+
+"\nGEOMETRY : "+
+geometry.value+
+"\nWEAR : "+
+wear.value+
+"\n";
+
+}
+
+
 code+=
 "G0 X20.\n"+
 "M5\n"+
@@ -300,72 +381,12 @@ code+=
 out.value=code;
 
 }
-    function tapCalc(){
-
-let size=document.getElementById("tapSize").value;
-
-let result="";
-
-
-if(size=="M3"){
-result=
-"Tap M3 x 0.5\n"+
-"Drill ก่อน Tap = Ø2.5 mm\n"+
-"Pitch = 0.5";
-}
-
-
-if(size=="M4"){
-result=
-"Tap M4 x 0.7\n"+
-"Drill ก่อน Tap = Ø3.3 mm\n"+
-"Pitch = 0.7";
-}
-
-
-if(size=="M5"){
-result=
-"Tap M5 x 0.8\n"+
-"Drill ก่อน Tap = Ø4.2 mm\n"+
-"Pitch = 0.8";
-}
-
-
-if(size=="M6"){
-result=
-"Tap M6 x 1.0\n"+
-"Drill ก่อน Tap = Ø5.0 mm\n"+
-"Pitch = 1.0";
-}
-
-
-if(size=="M8"){
-result=
-"Tap M8 x 1.25\n"+
-"Drill ก่อน Tap = Ø6.8 mm\n"+
-"Pitch = 1.25";
-}
-
-
-if(size=="M10"){
-result=
-"Tap M10 x 1.5\n"+
-"Drill ก่อน Tap = Ø8.5 mm\n"+
-"Pitch = 1.5";
-}
-
-
-document.getElementById("tapResult").value=result;
-
-}
 
 
 
 function copyCode(){
 
-let text=document.getElementById("out");
-
-text.select();
+out.select();
 
 document.execCommand("copy");
 
@@ -378,4 +399,4 @@ alert("Copy G-code แล้ว");
 
 
 </body>
-</html>
+</html> 
