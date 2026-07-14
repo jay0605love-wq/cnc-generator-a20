@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CNC Generator A20</title>
+<style>
+body{
+font-family:Arial;
+background:#111;
+color:white;
+padding:20px;
+}
+.box{
+background:#222;
+padding:15px;
+border-radius:10px;
+}
+input,button,textarea{
+width:100%;
+padding:12px;
+margin:6px 0;
+font-size:16px;
+}
+button{
+background:#008cff;
+color:white;
+border:0;
+border-radius:8px;
+}
+textarea{
+height:250px;
+background:#000;
+color:#0f0;
+}
+</style>
+</head>
+
+<body>
+
+<h2>⚙️ CNC Generator A20</h2>
+
+<div class="box">
+
+<label>X Start</label>
+<input id="xs" value="8">
+
+<label>X Finish</label>
+<input id="xe" value="6">
+
+<label>Z Length</label>
+<input id="zl" value="-20">
+
+<label>Feed</label>
+<input id="feed" value="0.08">
+
+<label>RPM</label>
+<input id="rpm" value="3500">
+
+<button onclick="gen()">Generate G-code</button>
+
+<textarea id="out"></textarea>
+
+</div>
+
+<script>
+function gen(){
+
+let g =
+`%
+O1001
+G99
+G97 S${rpm.value} M3
+G0 X${xs.value} Z1.
+G1 Z0 F${feed.value}
+X${xe.value}
+Z${zl.value}
+G0 X20.
+M5
+M30
+%`;
+
+out.value=g;
+
+}
+</script>
+
+</body>
+</html>
