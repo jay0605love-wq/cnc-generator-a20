@@ -59,6 +59,7 @@ label{
 <option value="g32">G32 Thread</option>
 <option value="g92">G92 Thread</option>
 <option value="g83">G83 Drill</option>
+ <option value="g84">G84 Tap</option>   
 </select>
 
 </div>
@@ -108,6 +109,14 @@ label{
 
 <label>Peck Q</label>
 <input id="peck" value="2">
+    <label>Tap Pitch</label>
+<input id="tapPitch" value="0.8">
+
+<label>Tap Depth Z</label>
+<input id="tapZ" value="-10">
+
+<label>R Point</label>
+<input id="tapR" value="1">
 
 <button onclick="generate()">Generate G-code</button>
 
@@ -213,6 +222,20 @@ code+=
 "G83 Z"+z+
 " Q"+q+
 " F"+feed+"\n"+
+"G80\n";
+
+}
+    if(mode=="g84"){
+
+let pitch=document.getElementById("tapPitch").value;
+let z=document.getElementById("tapZ").value;
+let r=document.getElementById("tapR").value;
+
+code+=
+"G84 Z"+z+
+" R"+r+
+" F"+pitch+
+"\n"+
 "G80\n";
 
 }
