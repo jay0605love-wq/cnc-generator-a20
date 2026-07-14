@@ -4,48 +4,73 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CNC Generator A20</title>
+
 <style>
 body{
-font-family:Arial;
-background:#111;
-color:white;
-padding:20px;
+    font-family:Arial,sans-serif;
+    background:#111;
+    color:white;
+    padding:15px;
+}
+h1{
+    text-align:center;
 }
 .box{
-background:#222;
-padding:15px;
-border-radius:10px;
+    background:#222;
+    padding:15px;
+    border-radius:10px;
+    margin-bottom:15px;
 }
-input,button,textarea{
-width:100%;
-padding:12px;
-margin:6px 0;
-font-size:16px;
+select,input,button,textarea{
+    width:100%;
+    padding:12px;
+    margin:6px 0;
+    font-size:16px;
+    border-radius:6px;
 }
 button{
-background:#008cff;
-color:white;
-border:0;
-border-radius:8px;
+    background:#008cff;
+    color:white;
+    border:none;
 }
 textarea{
-height:250px;
-background:#000;
-color:#0f0;
+    height:260px;
+    background:#000;
+    color:#00ff00;
+}
+label{
+    display:block;
+    margin-top:8px;
 }
 </style>
+
 </head>
 
 <body>
 
-<h2>⚙️ CNC Generator A20</h2>
+<h1>⚙️ CNC Generator A20</h1>
 
 <div class="box">
 
-<label>X Start</label>
+<label>เลือกงาน</label>
+
+<select id="mode">
+<option value="od">OD Turning</option>
+<option value="g32">G32 Thread</option>
+<option value="g92">G92 Thread</option>
+</select>
+
+</div>
+
+
+<div class="box" id="inputArea">
+
+<h3>OD Turning</h3>
+
+<label>X Start (Dia)</label>
 <input id="xs" value="8">
 
-<label>X Finish</label>
+<label>X Finish (Dia)</label>
 <input id="xe" value="6">
 
 <label>Z Length</label>
@@ -57,32 +82,147 @@ color:#0f0;
 <label>RPM</label>
 <input id="rpm" value="3500">
 
-<button onclick="gen()">Generate G-code</button>
 
-<textarea id="out"></textarea>
+</div>
+<div class="box">
+
+<h3>Thread Setting</h3>
+
+<label>Pitch (mm)</label>
+<input id="pitch" value="0.8">
+
+<label>X Start (Dia)</label>
+<input id="txs" value="4.5">
+
+<label>X Finish (Dia)</label>
+<input id="txe" value="3.9">
+
+<label>Z Length</label>
+<input id="tz" value="-10">
+
+<label>Pass</label>
+<input id="pass" value="4">
+
+
+<button onclick="generate()">Generate G-code</button>
+
+<button onclick="copyCode()">Copy G-code</button>
 
 </div>
 
+
+<textarea id="out"></textarea>
+
+
 <script>
-function gen(){
 
-let g =
-`%
-O1001
-G99
-G97 S${rpm.value} M3
-G0 X${xs.value} Z1.
-G1 Z0 F${feed.value}
-X${xe.value}
-Z${zl.value}
-G0 X20.
-M5
-M30
-%`;
+function generate(){
 
-out.value=g;
+let mode=document.getElementById("mode").value;
+
+let rpm=document.getElementById("rpm").value;
+
+let code="%\nO1001\nG99\nG97 S"+rpm+" M3\n";
+
+
+if(mode=="od"){
+
+let xs=document.getElementById("xs").value;
+let xe=document.getElementById("xe").value;
+let zl=document.getElementById("zl").value;
+let feed=document.getElementById("feed").value;
+
+code+=
+"G0 X"+xs+" Z1.\n"+
+"G1 Z0 F"+feed+"\n"+
+"X"+xe+"\n"+
+"Z"+zl+"\n";
 
 }
+
+
+if(mode=="g32"){
+
+let pitch=document.getElementById("pitch").value;
+let x=document.getElementById("txs").value;
+let xe=document.getElementById("txe").value;
+let z=document.getElementById("tz").value;
+let pass=document.getElementById("pass").value;
+
+
+let start=parseFloat(x);
+let end=parseFloat(xe);
+let step=(start-end)/pass;
+
+
+for(let i=0;i<=pass;i++){
+
+let xpos=(start-(step*i)).toFixed(2);
+
+code+="G32 X"+xpos+" Z"+z+" F"+pitch+"\n";
+
+}
+
+}
+
+
+if(mode=="g92"){
+
+let pitch=document.getElementById("pitch").value;
+let x=document.getElementById("txs").value;
+let xe=document.getElementById("txe").value;
+let z=document.getElementById("tz").value;
+let pass=document.getElementById("pass").value;
+
+
+let start=parseFloat(x);
+let end=parseFloat(xe);
+let step=(start-end)/pass;
+
+
+for(let i=0;i<=pass;i++){
+
+let xpos=(start-(step*i)).toFixed(2);
+
+if(i==0){
+
+code+="G92 X"+xpos+" Z"+z+" F"+pitch+"\n";
+
+}else{
+
+code+="X"+xpos+"\n";
+
+}
+
+}
+
+}
+
+
+code+=
+"G0 X20.\n"+
+"M5\n"+
+"M30\n%";
+
+
+document.getElementById("out").value=code;
+
+}
+
+
+
+function copyCode(){
+
+let text=document.getElementById("out");
+
+text.select();
+
+document.execCommand("copy");
+
+alert("Copy G-code แล้ว");
+
+}
+
 </script>
 
 </body>
