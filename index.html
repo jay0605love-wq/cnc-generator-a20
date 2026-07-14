@@ -3,44 +3,51 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CNC Generator A20</title>
+
+<title>CNC Generator A20 V0.5</title>
 
 <style>
 body{
-    font-family:Arial,sans-serif;
-    background:#111;
-    color:white;
-    padding:15px;
+font-family:Arial;
+background:#111;
+color:white;
+padding:15px;
 }
+
 h1{
-    text-align:center;
+text-align:center;
 }
+
 .box{
-    background:#222;
-    padding:15px;
-    border-radius:10px;
-    margin-bottom:15px;
+background:#222;
+padding:15px;
+border-radius:10px;
+margin-bottom:15px;
 }
-select,input,button,textarea{
-    width:100%;
-    padding:12px;
-    margin:6px 0;
-    font-size:16px;
-    border-radius:6px;
+
+input,select,button,textarea{
+width:100%;
+padding:12px;
+margin:5px 0;
+font-size:16px;
+border-radius:8px;
 }
+
 button{
-    background:#008cff;
-    color:white;
-    border:none;
+background:#008cff;
+color:white;
+border:0;
 }
+
 textarea{
-    height:260px;
-    background:#000;
-    color:#00ff00;
+height:250px;
+background:#000;
+color:#00ff00;
 }
+
 label{
-    display:block;
-    margin-top:8px;
+display:block;
+margin-top:8px;
 }
 </style>
 
@@ -55,25 +62,38 @@ label{
 <label>เลือกงาน</label>
 
 <select id="mode">
+
 <option value="od">OD Turning</option>
-<option value="g32">G32 Thread</option>
-<option value="g92">G92 Thread</option>
-<option value="g83">G83 Drill</option>
- <option value="g84">G84 Tap</option> 
- <option value="tapcalc">Tap Calculator</option>
+
+<option value="g32">
+G32 Manual Thread
+</option>
+
+<option value="g92">
+G92 Thread Cycle
+</option>
+
+<option value="g83">
+G83 Drill
+</option>
+
+<option value="g84">
+G84 Tap
+</option>
+
 </select>
 
 </div>
 
 
-<div class="box" id="inputArea">
+<div class="box">
 
 <h3>OD Turning</h3>
 
-<label>X Start (Dia)</label>
+<label>X Start (Diameter)</label>
 <input id="xs" value="8">
 
-<label>X Finish (Dia)</label>
+<label>X Finish (Diameter)</label>
 <input id="xe" value="6">
 
 <label>Z Length</label>
@@ -86,54 +106,87 @@ label{
 <input id="rpm" value="3500">
 
 
-</div>
-<div class="box">
+<h3>Thread</h3>
 
-<h3>Thread Setting</h3>
-
-<label>Pitch (mm)</label>
+<label>Pitch</label>
 <input id="pitch" value="0.8">
 
-<label>X Start (Dia)</label>
+<label>X Start</label>
 <input id="txs" value="4.5">
 
-<label>X Finish (Dia)</label>
+<label>X Finish</label>
 <input id="txe" value="3.9">
 
-<label>Z Length</label>
+<label>Thread Z</label>
 <input id="tz" value="-10">
 
-<label>Pass</label>
+<label>Thread Pass</label>
 <input id="pass" value="4">
-<label>Drill Depth Z</label>
+
+
+<h3>Drill G83</h3>
+
+<label>Drill Z Depth</label>
 <input id="drillZ" value="-10">
 
 <label>Peck Q</label>
 <input id="peck" value="2">
-    <label>Tap Pitch</label>
+<h3>G84 Tap</h3>
+
+<label>Tap Pitch / Feed</label>
 <input id="tapPitch" value="0.8">
-   
+
 <label>Tap Depth Z</label>
 <input id="tapZ" value="-10">
 
 <label>R Point</label>
-<input id="tapR" value="1">   
-<label>Tap Size</label>
+<input id="tapR" value="1">
+
+
+<h3>Tap Calculator</h3>
+
+<label>เลือก Tap</label>
+
 <select id="tapSize">
+
 <option value="M3">M3 x 0.5</option>
 <option value="M4">M4 x 0.7</option>
 <option value="M5">M5 x 0.8</option>
 <option value="M6">M6 x 1.0</option>
 <option value="M8">M8 x 1.25</option>
 <option value="M10">M10 x 1.5</option>
+
 </select>
 
-<button onclick="tapCalc()">Calculate Tap</button>
 
-<textarea id="tapResult"></textarea>
+<button onclick="tapCalc()">
+Calculate Tap
+</button>
 
 
-}
+<textarea id="tapResult"
+placeholder="ผล Tap Calculator">
+</textarea>
+
+
+<button onclick="generate()">
+Generate G-code
+</button>
+
+
+<button onclick="copyCode()">
+Copy G-code
+</button>
+
+
+</div>
+
+
+<textarea id="out"
+placeholder="G-code Output">
+</textarea>
+
+
 <script>
 
 function generate(){
@@ -142,44 +195,42 @@ let mode=document.getElementById("mode").value;
 
 let rpm=document.getElementById("rpm").value;
 
-let code="%\nO1001\nG99\nG97 S"+rpm+" M3\n";
+let code=
+"%\n"+
+"O1001\n"+
+"G99\n"+
+"G97 S"+rpm+" M3\n";
 
 
 if(mode=="od"){
 
-let xs=document.getElementById("xs").value;
-let xe=document.getElementById("xe").value;
-let zl=document.getElementById("zl").value;
-let feed=document.getElementById("feed").value;
-
 code+=
-"G0 X"+xs+" Z1.\n"+
-"G1 Z0 F"+feed+"\n"+
-"X"+xe+"\n"+
-"Z"+zl+"\n";
+"G0 X"+xs.value+" Z1.\n"+
+"G1 Z0 F"+feed.value+"\n"+
+"X"+xe.value+"\n"+
+"Z"+zl.value+"\n";
 
 }
 
 
 if(mode=="g32"){
 
-let pitch=document.getElementById("pitch").value;
-let x=document.getElementById("txs").value;
-let xe=document.getElementById("txe").value;
-let z=document.getElementById("tz").value;
-let pass=document.getElementById("pass").value;
+let start=parseFloat(txs.value);
+let end=parseFloat(txe.value);
+let p=parseInt(pass.value);
+
+let step=(start-end)/p;
 
 
-let start=parseFloat(x);
-let end=parseFloat(xe);
-let step=(start-end)/pass;
+for(let i=0;i<=p;i++){
 
+let x=(start-(step*i)).toFixed(2);
 
-for(let i=0;i<=pass;i++){
-
-let xpos=(start-(step*i)).toFixed(2);
-
-code+="G32 X"+xpos+" Z"+z+" F"+pitch+"\n";
+code+=
+"G32 X"+x+
+" Z"+tz.value+
+" F"+pitch.value+
+"\n";
 
 }
 
@@ -188,70 +239,123 @@ code+="G32 X"+xpos+" Z"+z+" F"+pitch+"\n";
 
 if(mode=="g92"){
 
-let pitch=document.getElementById("pitch").value;
-let x=document.getElementById("txs").value;
-let xe=document.getElementById("txe").value;
-let z=document.getElementById("tz").value;
-let pass=document.getElementById("pass").value;
+let start=parseFloat(txs.value);
+let end=parseFloat(txe.value);
+let p=parseInt(pass.value);
+
+let step=(start-end)/p;
 
 
-let start=parseFloat(x);
-let end=parseFloat(xe);
-let step=(start-end)/pass;
+for(let i=0;i<=p;i++){
 
-
-for(let i=0;i<=pass;i++){
-
-let xpos=(start-(step*i)).toFixed(2);
+let x=(start-(step*i)).toFixed(2);
 
 if(i==0){
 
-code+="G92 X"+xpos+" Z"+z+" F"+pitch+"\n";
+code+=
+"G92 X"+x+
+" Z"+tz.value+
+" F"+pitch.value+
+"\n";
 
 }else{
 
-code+="X"+xpos+"\n";
+code+="X"+x+"\n";
 
 }
 
 }
 
 }
+
 
 if(mode=="g83"){
 
-let z=document.getElementById("drillZ").value;
-let q=document.getElementById("peck").value;
-let feed=document.getElementById("feed").value;
-
 code+=
-"G83 Z"+z+
-" Q"+q+
-" F"+feed+"\n"+
-"G80\n";
+"G83 Z"+drillZ.value+
+" Q"+peck.value+
+" F"+feed.value+
+"\nG80\n";
 
 }
-    if(mode=="g84"){
 
-let pitch=document.getElementById("tapPitch").value;
-let z=document.getElementById("tapZ").value;
-let r=document.getElementById("tapR").value;
+
+if(mode=="g84"){
 
 code+=
-"G84 Z"+z+
-" R"+r+
-" F"+pitch+
-"\n"+
-"G80\n";
+"G84 Z"+tapZ.value+
+" R"+tapR.value+
+" F"+tapPitch.value+
+"\nG80\n";
 
 }
+
+
 code+=
 "G0 X20.\n"+
 "M5\n"+
 "M30\n%";
 
 
-document.getElementById("out").value=code;
+out.value=code;
+
+}
+    function tapCalc(){
+
+let size=document.getElementById("tapSize").value;
+
+let result="";
+
+
+if(size=="M3"){
+result=
+"Tap M3 x 0.5\n"+
+"Drill ก่อน Tap = Ø2.5 mm\n"+
+"Pitch = 0.5";
+}
+
+
+if(size=="M4"){
+result=
+"Tap M4 x 0.7\n"+
+"Drill ก่อน Tap = Ø3.3 mm\n"+
+"Pitch = 0.7";
+}
+
+
+if(size=="M5"){
+result=
+"Tap M5 x 0.8\n"+
+"Drill ก่อน Tap = Ø4.2 mm\n"+
+"Pitch = 0.8";
+}
+
+
+if(size=="M6"){
+result=
+"Tap M6 x 1.0\n"+
+"Drill ก่อน Tap = Ø5.0 mm\n"+
+"Pitch = 1.0";
+}
+
+
+if(size=="M8"){
+result=
+"Tap M8 x 1.25\n"+
+"Drill ก่อน Tap = Ø6.8 mm\n"+
+"Pitch = 1.25";
+}
+
+
+if(size=="M10"){
+result=
+"Tap M10 x 1.5\n"+
+"Drill ก่อน Tap = Ø8.5 mm\n"+
+"Pitch = 1.5";
+}
+
+
+document.getElementById("tapResult").value=result;
 
 }
 
@@ -269,7 +373,9 @@ alert("Copy G-code แล้ว");
 
 }
 
+
 </script>
+
 
 </body>
 </html>
